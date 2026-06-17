@@ -8,7 +8,8 @@ import {
   emptyGrid,
   filledCount,
 } from "./sudoku.js";
-import { loadImage, drawToCanvas, setCropFrame, readGridFromCanvas } from "./ocr.js";
+import { readGridFromCanvas } from "./ocr.js";
+import { CropEditor } from "./crop-editor.js";
 
 /** @typedef {import('./sudoku.js').Grid} Grid */
 
@@ -21,9 +22,10 @@ let clueCells = new Set();
 let finished = false;
 let reviewEditCell = null;
 
-/** @type {HTMLCanvasElement | null} */
-let sourceCanvas = null;
-let cropPercent = 3;
+/** @type {CropEditor | null} */
+let cropEditor = null;
+/** @type {string | null} */
+let cropObjectUrl = null;
 let isProcessing = false;
 let photoSessionId = 0;
 
@@ -36,9 +38,9 @@ const screens = {
 
 const photoInput = document.getElementById("photo-input");
 const processingMessage = document.getElementById("processing-message");
-const cropCanvas = document.getElementById("crop-canvas");
-const cropFrame = document.getElementById("crop-frame");
-const cropSlider = document.getElementById("crop-slider");
+const cropImage = /** @type {HTMLImageElement} */ (document.getElementById("crop-image"));
+const rotateSlider = /** @type {HTMLInputElement} */ (document.getElementById("rotate-slider"));
+const rotateValue = document.getElementById("rotate-value");
 const reviewGridEl = document.getElementById("review-grid");
 const gameGridEl = document.getElementById("game-grid");
 const statusBanner = document.getElementById("status-banner");
@@ -149,12 +151,22 @@ function updateReviewStatus() {
   const count = filledCount(reviewGrid);
   if (count === 0) {
     reviewStatusEl.textContent =
-      "No numbers detected yet. Adjust the crop or tap cells to enter them manually.";
+      "No numbers detected yet. Adjust the crop or rotation, tap Re-read Grid, or enter digits manually.";
     reviewStatusEl.className = "review-status warning";
     return;
   }
   reviewStatusEl.textContent = `Detected ${count} number${count === 1 ? "" : "s"}. Tap any cell to correct a misread.`;
   reviewStatusEl.className = "review-status";
+}
+
+function destroyCropEditor() {
+  cropEditor?.destroy();
+  cropEditor = null;
+  if (cropObjectUrl) {
+    URL.revokeObjectURL(cropObjectUrl);
+    cropObjectUrl = null;
+  }
+  cropImage.removeAttribute("src");
 }
 
 function resetGameState() {
@@ -163,15 +175,45 @@ function resetGameState() {
   reviewGrid = emptyGrid();
   clueCells = new Set();
   finished = false;
-  sourceCanvas = null;
   reviewEditCell = null;
   closePicker();
   clearGridElements();
+  destroyCropEditor();
+}
+
+function setRotation(degrees) {
+  const clamped = Math.max(-45, Math.min(45, degrees));
+  cropEditor?.rotateTo(clamped);
+  rotateSlider.value = String(clamped);
+  rotateValue.textContent = `${clamped.toFixed(1)}°`;
 }
 
 function openPhotoPicker() {
   photoInput.value = "";
   photoInput.click();
+}
+
+/**
+ * @param {File} file
+ * @param {number} session
+ */
+async function setupCropEditor(file, session) {
+  destroyCropEditor();
+
+  cropObjectUrl = URL.createObjectURL(file);
+  cropImage.src = cropObjectUrl;
+  await cropImage.decode();
+  if (session !== photoSessionId) return;
+
+  cropEditor = new CropEditor();
+  await cropEditor.mount(cropImage);
+  if (session !== photoSessionId) return;
+
+  setRotation(0);
+}
+
+function getCroppedCanvas() {
+  return cropEditor?.getCroppedCanvas(900) ?? null;
 }
 
 async function handlePhoto(file) {
@@ -185,21 +227,15 @@ async function handlePhoto(file) {
   processingMessage.textContent = "Loading image…";
 
   try {
-    const img = await loadImage(file);
+    showScreen("review");
+    await setupCropEditor(file, session);
     if (session !== photoSessionId) return;
-
-    sourceCanvas = drawToCanvas(img, 600);
-    cropCanvas.width = sourceCanvas.width;
-    cropCanvas.height = sourceCanvas.height;
-    cropCanvas.getContext("2d").drawImage(sourceCanvas, 0, 0);
-
-    cropPercent = parseFloat(cropSlider.value);
-    setCropFrame(cropFrame, cropPercent);
 
     await runOcr(session);
   } catch {
     if (session !== photoSessionId) return;
     processingMessage.textContent = "Could not read the image. Please try again.";
+    showScreen("processing");
     setTimeout(() => {
       if (session !== photoSessionId) return;
       showScreen("capture");
@@ -213,13 +249,13 @@ async function handlePhoto(file) {
 }
 
 async function runOcr(session = photoSessionId) {
-  if (!sourceCanvas) {
+  const canvas = getCroppedCanvas();
+  if (!canvas) {
     showScreen("capture");
     return;
   }
 
   reviewGrid = emptyGrid();
-  showScreen("review");
   reviewStatusEl.textContent = "Reading digits… 0%";
   reviewStatusEl.className = "review-status";
   renderReviewGrid();
@@ -228,8 +264,8 @@ async function runOcr(session = photoSessionId) {
 
   try {
     await readGridFromCanvas(
-      sourceCanvas,
-      cropPercent,
+      canvas,
+      0,
       reviewGrid,
       (progress) => {
         if (session !== photoSessionId) return;
@@ -253,7 +289,7 @@ async function runOcr(session = photoSessionId) {
     if (session !== photoSessionId) return;
     renderReviewGrid();
     reviewStatusEl.textContent =
-      "OCR failed. Adjust the crop and tap Re-read Grid, or enter digits manually.";
+      "OCR failed. Adjust the crop or rotation and tap Re-read Grid, or enter digits manually.";
     reviewStatusEl.className = "review-status warning";
   }
 }
@@ -381,13 +417,24 @@ photoInput.addEventListener("change", () => {
 
 document.getElementById("btn-take-picture").addEventListener("click", openPhotoPicker);
 
-cropSlider.addEventListener("input", () => {
-  cropPercent = parseFloat(cropSlider.value);
-  setCropFrame(cropFrame, cropPercent);
+rotateSlider.addEventListener("input", () => {
+  setRotation(parseFloat(rotateSlider.value));
+});
+
+document.getElementById("btn-rotate-left").addEventListener("click", () => {
+  setRotation(parseFloat(rotateSlider.value) - 0.5);
+});
+
+document.getElementById("btn-rotate-right").addEventListener("click", () => {
+  setRotation(parseFloat(rotateSlider.value) + 0.5);
+});
+
+document.getElementById("btn-rotate-reset").addEventListener("click", () => {
+  setRotation(0);
 });
 
 document.getElementById("btn-reprocess").addEventListener("click", async () => {
-  if (isProcessing || !sourceCanvas) return;
+  if (isProcessing || !cropEditor) return;
   isProcessing = true;
   const session = photoSessionId;
   try {

@@ -226,34 +226,38 @@ main {
 }
 
 .crop-container {
-  position: relative;
   width: 100%;
+  height: min(52vh, 420px);
   border-radius: var(--radius);
   overflow: hidden;
-  background: var(--surface);
+  background: #000;
 }
 
-#crop-canvas {
+.crop-image {
   display: block;
-  width: 100%;
-  height: auto;
+  max-width: 100%;
 }
 
-.crop-frame {
-  position: absolute;
-  inset: 3%;
-  pointer-events: none;
-  border: 2px solid var(--accent);
-  box-shadow: 0 0 0 9999px rgba(15, 15, 26, 0.62);
+.crop-container .cropper-view-box {
+  outline: 2px solid var(--accent);
+  outline-color: rgba(108, 99, 255, 0.95);
 }
 
-.crop-grid-lines {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(to right, rgba(108, 99, 255, 0.55) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(108, 99, 255, 0.55) 1px, transparent 1px);
-  background-size: calc(100% / 9) calc(100% / 9);
+.crop-container .cropper-line {
+  background-color: rgba(108, 99, 255, 0.55);
+}
+
+.crop-container .cropper-point {
+  background-color: var(--accent);
+  opacity: 1;
+}
+
+.crop-container .cropper-modal {
+  background-color: rgba(15, 15, 26, 0.62);
+}
+
+.crop-container .cropper-face {
+  background-color: transparent;
 }
 
 .crop-instruction {
@@ -263,11 +267,14 @@ main {
   line-height: 1.45;
 }
 
-.crop-controls {
+.crop-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
   padding: 0.5rem 0;
 }
 
-.crop-controls label {
+.rotate-control {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -275,9 +282,32 @@ main {
   color: var(--text-muted);
 }
 
-.crop-controls input[type="range"] {
+.rotate-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rotate-label output {
+  color: var(--text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.rotate-control input[type="range"] {
   width: 100%;
   accent-color: var(--accent);
+}
+
+.rotate-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-compact {
+  flex: 1;
+  padding: 0.625rem 0.5rem;
+  font-size: 0.875rem;
 }
 
 .review-actions {

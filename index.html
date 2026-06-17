@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#1a1a2e">
   <meta name="description" content="Sudoku Sage — scan your paper Sudoku, check your work, and get clues without spoiling the whole puzzle.">
   <title>Sudoku Sage</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -37,19 +38,23 @@
 
       <!-- Review / crop screen -->
       <section id="screen-review" class="screen" hidden>
-        <p class="section-label">Crop the image so only the Sudoku board is inside the frame, then confirm the numbers.</p>
+        <p class="section-label">Frame only the Sudoku board, then confirm the numbers below.</p>
         <div class="crop-container">
-          <canvas id="crop-canvas"></canvas>
-          <div id="crop-frame" class="crop-frame" aria-hidden="true">
-            <div class="crop-grid-lines"></div>
-          </div>
+          <img id="crop-image" class="crop-image" alt="Sudoku photo for cropping">
         </div>
-        <p class="crop-instruction" id="crop-instruction">Drag the crop slider until the highlighted square matches the outer border of your puzzle — nothing else should show inside it.</p>
-        <div class="crop-controls">
-          <label for="crop-slider">
-            Crop
-            <input type="range" id="crop-slider" min="0" max="15" value="3" step="0.5" aria-describedby="crop-instruction">
+        <p class="crop-instruction" id="crop-instruction">
+          Drag the crop corners or edges to fit the puzzle. Pinch or scroll to zoom. Rotate if the board is tilted, then tap Re-read Grid.
+        </p>
+        <div class="crop-tools">
+          <label class="rotate-control" for="rotate-slider">
+            <span class="rotate-label">Rotate <output id="rotate-value" for="rotate-slider">0.0°</output></span>
+            <input type="range" id="rotate-slider" min="-45" max="45" step="0.1" value="0" aria-describedby="crop-instruction">
           </label>
+          <div class="rotate-buttons">
+            <button type="button" id="btn-rotate-left" class="btn btn-secondary btn-compact" aria-label="Rotate 0.5 degrees counter-clockwise">−0.5°</button>
+            <button type="button" id="btn-rotate-reset" class="btn btn-secondary btn-compact">Reset</button>
+            <button type="button" id="btn-rotate-right" class="btn btn-secondary btn-compact" aria-label="Rotate 0.5 degrees clockwise">+0.5°</button>
+          </div>
         </div>
         <div class="review-actions">
           <button type="button" id="btn-reprocess" class="btn btn-secondary">Re-read Grid</button>

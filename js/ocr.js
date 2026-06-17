@@ -50,15 +50,6 @@ export function drawToCanvas(img, maxWidth = 900) {
 }
 
 /**
- * Update crop frame position (percentage trimmed from each edge).
- * @param {HTMLElement} frame
- * @param {number} cropPercent
- */
-export function setCropFrame(frame, cropPercent) {
-  frame.style.inset = `${cropPercent}%`;
-}
-
-/**
  * Build reference bitmaps for digits 1–9.
  */
 function ensureTemplates() {
