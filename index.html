@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="description" content="Sudoku Sage — scan your paper Sudoku, check your work, and get clues without spoiling the whole puzzle.">
+  <title>Sudoku Sage</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <h1>Sudoku Sage</h1>
+      <p class="tagline">Your paper Sudoku assistant</p>
+    </header>
+
+    <main id="main">
+      <!-- Capture screen -->
+      <section id="screen-capture" class="screen active">
+        <div class="hero">
+          <div class="hero-icon" aria-hidden="true">9</div>
+          <p>Photograph your in-progress Sudoku puzzle. Sudoku Sage will read the grid, check your entries, and help with clues — without spoiling the rest.</p>
+        </div>
+        <button type="button" id="btn-take-picture" class="btn btn-primary btn-large">
+          <span class="btn-icon" aria-hidden="true">📷</span>
+          Take a Picture
+        </button>
+        <p class="hint">Point your camera straight at the puzzle in good light.</p>
+      </section>
+
+      <!-- Processing screen -->
+      <section id="screen-processing" class="screen" hidden>
+        <div class="spinner" aria-hidden="true"></div>
+        <p id="processing-message">Reading your puzzle…</p>
+      </section>
+
+      <!-- Review / crop screen -->
+      <section id="screen-review" class="screen" hidden>
+        <p class="section-label">Adjust the grid if needed, then confirm the numbers.</p>
+        <div class="crop-container">
+          <canvas id="crop-canvas"></canvas>
+          <div id="grid-overlay" class="grid-overlay" aria-hidden="true"></div>
+        </div>
+        <div class="crop-controls">
+          <label>
+            Grid inset
+            <input type="range" id="inset-slider" min="0" max="15" value="3" step="0.5">
+          </label>
+        </div>
+        <button type="button" id="btn-reprocess" class="btn btn-secondary">Re-read Grid</button>
+
+        <div class="review-grid-wrap">
+          <p class="section-label">Tap a cell to correct a misread number.</p>
+          <p id="review-status" class="review-status"></p>
+          <div id="review-grid" class="sudoku-grid editable" role="grid" aria-label="Review Sudoku grid"></div>
+        </div>
+        <button type="button" id="btn-confirm-grid" class="btn btn-primary btn-large">Check My Puzzle</button>
+      </section>
+
+      <!-- Game screen -->
+      <section id="screen-game" class="screen" hidden>
+        <div id="status-banner" class="status-banner" role="status"></div>
+        <div id="game-grid" class="sudoku-grid" role="grid" aria-label="Sudoku puzzle"></div>
+
+        <div id="action-panel" class="action-panel" hidden>
+          <p class="action-label">Everything looks good! Need a nudge?</p>
+          <button type="button" id="btn-clue" class="btn btn-action">Give me a clue</button>
+          <button type="button" id="btn-double-clue" class="btn btn-action">Give me a double clue</button>
+          <button type="button" id="btn-finish" class="btn btn-action btn-finish">Finish the Game</button>
+        </div>
+
+        <div class="toolbar">
+          <button type="button" id="btn-reset" class="btn btn-secondary">Reset</button>
+          <button type="button" id="btn-new-picture" class="btn btn-secondary">New Picture</button>
+        </div>
+      </section>
+    </main>
+
+    <input type="file" id="photo-input" accept="image/*" capture="environment" hidden>
+
+    <!-- Number picker modal for review grid -->
+    <dialog id="number-picker" class="number-picker">
+      <div class="picker-grid">
+        <button type="button" data-value="1">1</button>
+        <button type="button" data-value="2">2</button>
+        <button type="button" data-value="3">3</button>
+        <button type="button" data-value="4">4</button>
+        <button type="button" data-value="5">5</button>
+        <button type="button" data-value="6">6</button>
+        <button type="button" data-value="7">7</button>
+        <button type="button" data-value="8">8</button>
+        <button type="button" data-value="9">9</button>
+        <button type="button" data-value="0" class="clear">Clear</button>
+      </div>
+      <button type="button" id="picker-cancel" class="btn btn-secondary">Cancel</button>
+    </dialog>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
