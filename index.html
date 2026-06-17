@@ -48,7 +48,10 @@
             <input type="range" id="inset-slider" min="0" max="15" value="3" step="0.5">
           </label>
         </div>
-        <button type="button" id="btn-reprocess" class="btn btn-secondary">Re-read Grid</button>
+        <div class="review-actions">
+          <button type="button" id="btn-reprocess" class="btn btn-secondary">Re-read Grid</button>
+          <button type="button" id="btn-review-new-picture" class="btn btn-secondary">New Picture</button>
+        </div>
 
         <div class="review-grid-wrap">
           <p class="section-label">Tap a cell to correct a misread number.</p>
@@ -57,8 +60,6 @@
         </div>
         <button type="button" id="btn-confirm-grid" class="btn btn-primary btn-large">Check My Puzzle</button>
       </section>
-
-      <!-- Game screen -->
       <section id="screen-game" class="screen" hidden>
         <div id="status-banner" class="status-banner" role="status"></div>
         <div id="game-grid" class="sudoku-grid" role="grid" aria-label="Sudoku puzzle"></div>

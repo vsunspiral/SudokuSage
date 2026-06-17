@@ -405,6 +405,7 @@ document.getElementById("btn-double-clue").addEventListener("click", () => apply
 document.getElementById("btn-finish").addEventListener("click", finishGame);
 document.getElementById("btn-reset").addEventListener("click", resetGame);
 document.getElementById("btn-new-picture").addEventListener("click", newPicture);
+document.getElementById("btn-review-new-picture").addEventListener("click", newPicture);
 
 numberPicker.querySelectorAll(".picker-grid button").forEach((btn) => {
   btn.addEventListener("click", () => {

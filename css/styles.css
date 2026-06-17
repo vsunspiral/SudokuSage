@@ -277,6 +277,15 @@ main {
   accent-color: var(--accent);
 }
 
+.review-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.review-actions .btn {
+  flex: 1;
+}
+
 .review-grid-wrap {
   margin-top: 0.5rem;
 }
