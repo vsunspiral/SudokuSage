@@ -9,6 +9,13 @@ async function loadCropper() {
   return CropperClass;
 }
 
+/** Wait until the browser has laid out visible elements. */
+function waitForLayout() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  });
+}
+
 /**
  * Interactive square crop + rotation using Cropper.js.
  */
@@ -21,20 +28,24 @@ export class CropEditor {
    */
   async mount(imageEl) {
     this.destroy();
+    await waitForLayout();
+
+    const container = imageEl.closest(".crop-container");
     const Cropper = await loadCropper();
 
     return new Promise((resolve) => {
       this.#instance = new Cropper(imageEl, {
+        container: container instanceof HTMLElement ? container : undefined,
         aspectRatio: 1,
-        viewMode: 1,
+        viewMode: 2,
         dragMode: "crop",
-        autoCropArea: 0.9,
+        autoCropArea: 1,
         responsive: true,
         restore: false,
         guides: true,
         center: true,
         highlight: false,
-        background: true,
+        background: false,
         modal: true,
         movable: true,
         rotatable: true,
@@ -47,8 +58,29 @@ export class CropEditor {
         toggleDragModeOnDblclick: false,
         minCropBoxWidth: 40,
         minCropBoxHeight: 40,
-        ready: () => resolve(this),
+        ready: () => {
+          this.#applyInitialCrop();
+          resolve(this);
+        },
       });
+    });
+  }
+
+  /** Set crop box to the largest square that fits the visible image. */
+  #applyInitialCrop() {
+    const cropper = this.#instance;
+    if (!cropper) return;
+
+    cropper.resize();
+
+    const canvasData = cropper.getCanvasData();
+    const size = Math.min(canvasData.width, canvasData.height);
+
+    cropper.setCropBoxData({
+      left: canvasData.left + (canvasData.width - size) / 2,
+      top: canvasData.top + (canvasData.height - size) / 2,
+      width: size,
+      height: size,
     });
   }
 

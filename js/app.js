@@ -205,11 +205,20 @@ async function setupCropEditor(file, session) {
   await cropImage.decode();
   if (session !== photoSessionId) return;
 
+  await waitForLayout();
+  if (session !== photoSessionId) return;
+
   cropEditor = new CropEditor();
   await cropEditor.mount(cropImage);
   if (session !== photoSessionId) return;
 
   setRotation(0);
+}
+
+function waitForLayout() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  });
 }
 
 function getCroppedCanvas() {
