@@ -37,15 +37,18 @@
 
       <!-- Review / crop screen -->
       <section id="screen-review" class="screen" hidden>
-        <p class="section-label">Adjust the grid if needed, then confirm the numbers.</p>
+        <p class="section-label">Crop the image so only the Sudoku board is inside the frame, then confirm the numbers.</p>
         <div class="crop-container">
           <canvas id="crop-canvas"></canvas>
-          <div id="grid-overlay" class="grid-overlay" aria-hidden="true"></div>
+          <div id="crop-frame" class="crop-frame" aria-hidden="true">
+            <div class="crop-grid-lines"></div>
+          </div>
         </div>
+        <p class="crop-instruction" id="crop-instruction">Drag the crop slider until the highlighted square matches the outer border of your puzzle — nothing else should show inside it.</p>
         <div class="crop-controls">
-          <label>
-            Grid inset
-            <input type="range" id="inset-slider" min="0" max="15" value="3" step="0.5">
+          <label for="crop-slider">
+            Crop
+            <input type="range" id="crop-slider" min="0" max="15" value="3" step="0.5" aria-describedby="crop-instruction">
           </label>
         </div>
         <div class="review-actions">

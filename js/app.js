@@ -8,7 +8,7 @@ import {
   emptyGrid,
   filledCount,
 } from "./sudoku.js";
-import { loadImage, drawToCanvas, setGridInset, readGridFromCanvas } from "./ocr.js";
+import { loadImage, drawToCanvas, setCropFrame, readGridFromCanvas } from "./ocr.js";
 
 /** @typedef {import('./sudoku.js').Grid} Grid */
 
@@ -23,7 +23,7 @@ let reviewEditCell = null;
 
 /** @type {HTMLCanvasElement | null} */
 let sourceCanvas = null;
-let insetPercent = 3;
+let cropPercent = 3;
 let isProcessing = false;
 let photoSessionId = 0;
 
@@ -37,8 +37,8 @@ const screens = {
 const photoInput = document.getElementById("photo-input");
 const processingMessage = document.getElementById("processing-message");
 const cropCanvas = document.getElementById("crop-canvas");
-const gridOverlay = document.getElementById("grid-overlay");
-const insetSlider = document.getElementById("inset-slider");
+const cropFrame = document.getElementById("crop-frame");
+const cropSlider = document.getElementById("crop-slider");
 const reviewGridEl = document.getElementById("review-grid");
 const gameGridEl = document.getElementById("game-grid");
 const statusBanner = document.getElementById("status-banner");
@@ -149,7 +149,7 @@ function updateReviewStatus() {
   const count = filledCount(reviewGrid);
   if (count === 0) {
     reviewStatusEl.textContent =
-      "No numbers detected yet. Adjust the grid inset or tap cells to enter them manually.";
+      "No numbers detected yet. Adjust the crop or tap cells to enter them manually.";
     reviewStatusEl.className = "review-status warning";
     return;
   }
@@ -193,8 +193,8 @@ async function handlePhoto(file) {
     cropCanvas.height = sourceCanvas.height;
     cropCanvas.getContext("2d").drawImage(sourceCanvas, 0, 0);
 
-    insetPercent = parseFloat(insetSlider.value);
-    setGridInset(gridOverlay, insetPercent);
+    cropPercent = parseFloat(cropSlider.value);
+    setCropFrame(cropFrame, cropPercent);
 
     await runOcr(session);
   } catch {
@@ -229,7 +229,7 @@ async function runOcr(session = photoSessionId) {
   try {
     await readGridFromCanvas(
       sourceCanvas,
-      insetPercent,
+      cropPercent,
       reviewGrid,
       (progress) => {
         if (session !== photoSessionId) return;
@@ -253,7 +253,7 @@ async function runOcr(session = photoSessionId) {
     if (session !== photoSessionId) return;
     renderReviewGrid();
     reviewStatusEl.textContent =
-      "OCR failed. Adjust the grid inset and tap Re-read Grid, or enter digits manually.";
+      "OCR failed. Adjust the crop and tap Re-read Grid, or enter digits manually.";
     reviewStatusEl.className = "review-status warning";
   }
 }
@@ -381,9 +381,9 @@ photoInput.addEventListener("change", () => {
 
 document.getElementById("btn-take-picture").addEventListener("click", openPhotoPicker);
 
-insetSlider.addEventListener("input", () => {
-  insetPercent = parseFloat(insetSlider.value);
-  setGridInset(gridOverlay, insetPercent);
+cropSlider.addEventListener("input", () => {
+  cropPercent = parseFloat(cropSlider.value);
+  setCropFrame(cropFrame, cropPercent);
 });
 
 document.getElementById("btn-reprocess").addEventListener("click", async () => {

@@ -239,25 +239,28 @@ main {
   height: auto;
 }
 
-.grid-overlay {
+.crop-frame {
   position: absolute;
   inset: 3%;
   pointer-events: none;
   border: 2px solid var(--accent);
-  display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  grid-template-rows: repeat(9, 1fr);
+  box-shadow: 0 0 0 9999px rgba(15, 15, 26, 0.62);
 }
 
-.grid-overlay::before {
-  content: "";
+.crop-grid-lines {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(to right, var(--accent) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--accent) 1px, transparent 1px);
+    linear-gradient(to right, rgba(108, 99, 255, 0.55) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(108, 99, 255, 0.55) 1px, transparent 1px);
   background-size: calc(100% / 9) calc(100% / 9);
-  opacity: 0.4;
+}
+
+.crop-instruction {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.45;
 }
 
 .crop-controls {

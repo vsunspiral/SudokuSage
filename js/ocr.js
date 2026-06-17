@@ -50,12 +50,12 @@ export function drawToCanvas(img, maxWidth = 900) {
 }
 
 /**
- * Update grid overlay inset percentage.
- * @param {HTMLElement} overlay
- * @param {number} insetPercent
+ * Update crop frame position (percentage trimmed from each edge).
+ * @param {HTMLElement} frame
+ * @param {number} cropPercent
  */
-export function setGridInset(overlay, insetPercent) {
-  overlay.style.inset = `${insetPercent}%`;
+export function setCropFrame(frame, cropPercent) {
+  frame.style.inset = `${cropPercent}%`;
 }
 
 /**
